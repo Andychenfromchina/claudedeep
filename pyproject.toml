@@ -1,0 +1,65 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "deep-research-deepseek"
+version = "0.1.0"
+description = "Deep research agent powered by DeepSeek + pluggable web search"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "deep-research contributors" }]
+keywords = ["deepseek", "research", "agent", "llm", "web-search"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "openai>=1.50.0",
+    "tavily-python>=0.5.0",
+    "httpx>=0.27.0",
+    "python-dotenv>=1.0.0",
+    "structlog>=24.1.0",
+    "pypdf>=4.0.0",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "python-multipart>=0.0.9",
+    "markdown>=3.5",
+]
+mcp = [
+    "mcp>=1.0",
+]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/example/deep-research-deepseek"
+
+[project.scripts]
+deep-research = "deep_research:main"
+deep-research-web = "web:_run"
+deep-research-evals = "run_evals:main"
+deep-research-mcp = "mcp_server:main"
+
+[tool.setuptools]
+py-modules = ["deep_research", "web", "_log", "stats", "run_evals",
+              "mcp_server", "prompts", "run_ab"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501"]

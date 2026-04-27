@@ -1,0 +1,34 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+build/
+dist/
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Local agent state / reports / caches
+state*.json
+*.report.md
+.cache/
+evals/results-*.json
+evals/ab-*.json
+*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store

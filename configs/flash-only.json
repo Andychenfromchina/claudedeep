@@ -1,0 +1,8 @@
+{
+  "name": "flash-only",
+  "planner": "deepseek-v4-flash",
+  "writer": "deepseek-v4-flash",
+  "max_iters": 8,
+  "prompts": "v1",
+  "lang": "en"
+}
