@@ -39,7 +39,11 @@ import prompts as _prompts
 import stats as _stats
 from _log import configure_logging, log
 
+# Load env from CWD first (per-project override), then from package dir.
+# The second call lets the MCP server / cron jobs find ~/deep-research/.env
+# even when invoked from an unrelated working directory.
 load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env", override=False)
 
 # Optional callback signature: receives an event dict, returns awaitable or None.
 EventCallback = Optional[Callable[[dict], Awaitable[None]]]
