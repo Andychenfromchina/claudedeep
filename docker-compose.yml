@@ -1,8 +1,8 @@
 services:
-  deep-research:
+  claudedeep:
     build: .
-    image: deep-research:local
-    container_name: deep-research
+    image: claudedeep:local
+    container_name: claudedeep
     restart: unless-stopped
     ports:
       - "8000:8000"

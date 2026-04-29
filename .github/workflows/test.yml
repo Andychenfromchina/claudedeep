@@ -1,15 +1,9 @@
-name: deep-research tests
+name: claudedeep tests
 
 on:
   push:
     branches: [main]
-    paths:
-      - 'deep-research/**'
-      - '.github/workflows/test.yml'
   pull_request:
-    paths:
-      - 'deep-research/**'
-      - '.github/workflows/test.yml'
 
 jobs:
   test:
@@ -18,9 +12,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.11", "3.12"]
-    defaults:
-      run:
-        working-directory: deep-research
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +21,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
-          cache-dependency-path: deep-research/requirements.txt
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
         run: |
@@ -39,10 +30,9 @@ jobs:
 
       - name: Syntax check
         run: |
-          python -c "import ast; ast.parse(open('deep_research.py').read())"
-          python -c "import ast; ast.parse(open('test_deep_research.py').read())"
-          python -c "import ast; ast.parse(open('test_research_loop.py').read())"
-          python -c "import ast; ast.parse(open('web.py').read())"
+          for f in deep_research.py prompts.py _log.py stats.py web.py mcp_server.py run_evals.py run_ab.py; do
+            python -c "import ast; ast.parse(open('$f').read())"
+          done
 
       - name: Run unit tests
         run: python -m unittest discover -v

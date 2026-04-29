@@ -9,13 +9,13 @@ Three tools surfaced:
 Run (stdio transport, the most common MCP setup):
 
     pip install -e ".[mcp]"
-    python -m mcp_server                  # or `deep-research-mcp`
+    python -m mcp_server                  # or `claudedeep-mcp`
 
 Add to a Claude Code or Cline MCP config:
 
     {
       "mcpServers": {
-        "deep-research": {
+        "claudedeep": {
           "command": "python",
           "args": ["-m", "mcp_server"],
           "env": {
@@ -52,7 +52,7 @@ from _log import configure_logging, log
 # JSON form so they don't corrupt the protocol.
 configure_logging(os.environ.get("DEEP_RESEARCH_LOG", "json"))
 
-server: Server = Server("deep-research")
+server: Server = Server("claudedeep")
 
 
 @server.list_tools()
@@ -172,7 +172,7 @@ async def amain() -> None:
             read_stream,
             write_stream,
             InitializationOptions(
-                server_name="deep-research",
+                server_name="claudedeep",
                 server_version="0.1.0",
                 capabilities=server.get_capabilities(
                     notification_options=NotificationOptions(),
