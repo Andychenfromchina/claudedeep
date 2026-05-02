@@ -1,10 +1,12 @@
 """MCP server exposing the deep_research toolkit to MCP clients (Claude Code,
 Cline, Aider, etc).
 
-Three tools surfaced:
-- search_web(query, max_results)         — single search, dedup-aware
+Five tools surfaced:
+- search_web(query, max_results)          — single search, dedup-aware
 - fetch_url(url)                          — HTML or PDF body
 - research(question, max_iters, lang, …)  — full agent loop, returns markdown
+- code(task, code?, language?, …)         — general code generation / refactor / explain
+- fim_complete(prefix, suffix?, …)        — DeepSeek beta fill-in-the-middle
 
 Run (stdio transport, the most common MCP setup):
 
@@ -45,6 +47,7 @@ except ImportError:
         "(or `pip install -e \".[mcp]\"`)."
     )
 
+import coding
 import deep_research as dr
 from _log import configure_logging, log
 
@@ -109,6 +112,51 @@ async def list_tools() -> list[types.Tool]:
                 "required": ["question"],
             },
         ),
+        types.Tool(
+            name="code",
+            description=(
+                "General code generation, refactoring, explanation, or "
+                "transformation via DeepSeek (v4-flash by default; v4-pro "
+                "for hard reasoning). Returns code only, no prose. Pass "
+                "existing code via `code` for refactor/fix/explain tasks."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "task": {"type": "string",
+                             "description": "Natural-language instruction (e.g. "
+                                            "'add type hints', 'write a Rust fn that…')."},
+                    "code": {"type": "string", "default": "",
+                             "description": "Optional existing code to operate on."},
+                    "language": {"type": "string", "default": "",
+                                 "description": "Optional language hint (python, ts, rust, go…)."},
+                    "model": {"type": "string", "default": "deepseek-v4-flash"},
+                    "max_tokens": {"type": "integer", "default": 2000, "maximum": 8000},
+                },
+                "required": ["task"],
+            },
+        ),
+        types.Tool(
+            name="fim_complete",
+            description=(
+                "Fill-in-the-middle completion via DeepSeek's beta /completions "
+                "endpoint. Give the model the text BEFORE the cursor (`prefix`) "
+                "and optionally AFTER (`suffix`); it returns the middle. "
+                "Useful for editor-style autocomplete. Always uses v4-pro. "
+                "Output capped at 4K tokens."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "prefix": {"type": "string",
+                               "description": "Code/text before the cursor."},
+                    "suffix": {"type": "string", "default": "",
+                               "description": "Code/text after the cursor (optional)."},
+                    "max_tokens": {"type": "integer", "default": 1000, "maximum": 4096},
+                },
+                "required": ["prefix"],
+            },
+        ),
     ]
 
 
@@ -157,6 +205,24 @@ async def call_tool(name: str, arguments: dict[str, Any]) -> list[types.TextCont
                 stream=False,
             )
             return [types.TextContent(type="text", text=report)]
+
+        if name == "code":
+            out = await coding.generate_code(
+                arguments["task"],
+                code=arguments.get("code", "") or "",
+                language=arguments.get("language", "") or "",
+                model=arguments.get("model", "deepseek-v4-flash"),
+                max_tokens=int(arguments.get("max_tokens", 2000)),
+            )
+            return [types.TextContent(type="text", text=out)]
+
+        if name == "fim_complete":
+            out = await coding.fim_complete(
+                arguments["prefix"],
+                suffix=arguments.get("suffix", "") or "",
+                max_tokens=int(arguments.get("max_tokens", 1000)),
+            )
+            return [types.TextContent(type="text", text=out)]
 
         return [types.TextContent(type="text", text=f"unknown tool: {name}")]
     except Exception as e:

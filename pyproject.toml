@@ -56,7 +56,7 @@ claudedeep-mcp = "mcp_server:main"
 
 [tool.setuptools]
 py-modules = ["deep_research", "web", "_log", "stats", "run_evals",
-              "mcp_server", "prompts", "run_ab"]
+              "mcp_server", "prompts", "run_ab", "coding"]
 
 [tool.ruff]
 line-length = 100
